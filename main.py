@@ -17,15 +17,32 @@ background = pygame.image.load('background.jpg')
 # Caption
 pygame.display.set_caption("Strzelanka")
 
+
 # Player
-player_size = 64
-playerImg = pygame.image.load('player.png')
-playerX = screen_resolutionX / 2
-playerY = screen_resolutionY - 5 * screen_resolutionY / 100 - player_size
-playerX_change = 0
-playerX_speed = 5
+class Player:
+    size = 64
+    img = pygame.image.load('player.png')
+    positionX = screen_resolutionX / 2
+    positionY = screen_resolutionY - 5 * screen_resolutionY / 100 - size
+    positionXChange = 0
+    positionXSpeed = 5
+
+    def update(x, y):
+        screen.blit(Player.img, (x, y))
+
 
 # Enemy
+class Enemy:
+    def __init__(self, lvl):
+        self.lvl = lvl
+        self.size = 64
+        self.speedX
+        self.speedY
+
+    def update(x, y, i):
+        screen.blit(enemyImg[i], (x, y))
+
+
 enemyID = []
 gamelvl = 1
 enemysize = 64
@@ -45,19 +62,25 @@ enemyY.append(70)
 enemyX_change.append(enemyX_speed)
 enemyY_change.append(40)
 enemyID.append(0)
+
+
 # for i in range(num_of_enemies):
 
 
 # Bullet
 # Ready - You can't see the bullet on the screen
 # Fire - The bullet is currently moving
+class Bullet:
+    img = pygame.image.load('bullet.png')
+    positionX = 0
+    positionY = screen_resolutionY - 5 * screen_resolutionY / 100 - Player.size
+    positionYSpeed = 5
+    positionYChange = 0
+    state = "ready"
 
-bulletImg = pygame.image.load('bullet.png')
-bulletX = 0
-bulletY = screen_resolutionY - 5 * screen_resolutionY / 100 - player_size
-bulletY_speed = 20
-bulletY_change = 0
-bullet_state = "ready"
+    def fire(x, y):
+        Bullet.state = "fire"
+        screen.blit(Bullet.img, (x + 16, y + 10))
 
 # Score
 score_value = 0
@@ -83,21 +106,6 @@ def game_over_text():
     over_text = over_font.render("GAME OVER", True, (255, 255, 255))
     screen.blit(over_text, (screen_resolutionX / 2, screen_resolutionY / 2))
 
-
-def player(x, y):
-    screen.blit(playerImg, (x, y))
-
-
-def enemy(x, y, i):
-    screen.blit(enemyImg[i], (x, y))
-
-
-def fire_bullet(x, y):
-    global bullet_state
-    bullet_state = "fire"
-    screen.blit(bulletImg, (x + 16, y + 10))
-
-
 def isCollision(enemyX, enemyY, bulletX, bulletY):
     distance = math.sqrt(math.pow(enemyX - bulletX, 2) + (math.pow(enemyY - bulletY, 2)))
     if distance < 27:
@@ -121,18 +129,18 @@ while running:
         # if keystroke is pressed check whether its right or left
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
-                playerX_change -= playerX_speed
+                Player.positionXChange -= Player.positionXSpeed
             if event.key == pygame.K_RIGHT:
-                playerX_change += playerX_speed
+                Player.positionXChange += Player.positionXSpeed
             if event.key == pygame.K_SPACE:
-                if bullet_state is "ready":
+                if Bullet.state == "ready":
                     # Get the current x cordinate of the spaceship
-                    bulletX = playerX
-                    fire_bullet(bulletX, bulletY)
+                    Bullet.positionX = Player.positionX
+                    Bullet.fire(Bullet.positionX, Bullet.positionY)
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-                playerX_change = 0
+                Player.positionXChange = 0
 
     # Next enemy creator
     if num_of_enemies[gamelvl] >= num_of_enemies_generated:
@@ -155,16 +163,16 @@ while running:
         enemy_next_get_time -= 0.05
         print("Next lvl")
 
-    playerX += playerX_change
-    if playerX <= 0:
-        playerX = 0
-    elif playerX >= screen_resolutionX - player_size:
-        playerX = screen_resolutionX - player_size
+    Player.positionX += Player.positionXChange
+    if Player.positionX <= 0:
+        Player.positionX = 0
+    elif Player.positionX >= screen_resolutionX - Player.size:
+        Player.positionX = screen_resolutionX - Player.size
     print(enemyID)
     # Enemy Movement
     for i in enemyID:
         # Game Over
-        if enemyY[i] > screen_resolutionY - 5 * screen_resolutionY / 100 - 2 * player_size:
+        if enemyY[i] > screen_resolutionY - 5 * screen_resolutionY / 100 - 2 * Player.size:
             for j in enemyID:
                 enemyY[j] = 2000
             game_over_text()
@@ -175,29 +183,29 @@ while running:
             enemyX[i] = 0
             enemyX_change[i] = -enemyX_change[i]
             enemyY[i] += enemyY_change[i]
-        elif enemyX[i] > screen_resolutionX - player_size:
-            enemyX[i] = screen_resolutionX - player_size
+        elif enemyX[i] > screen_resolutionX - Player.size:
+            enemyX[i] = screen_resolutionX - Player.size
             enemyX_change[i] = -enemyX_change[i]
             enemyY[i] += enemyY_change[i]
 
         # Collision
-        collision = isCollision(enemyX[i], enemyY[i], bulletX, bulletY)
+        collision = isCollision(enemyX[i], enemyY[i], Bullet.positionX, Bullet.positionY)
         if collision:
-            bulletY = screen_resolutionY - 5 * screen_resolutionY / 100 - player_size
-            bullet_state = "ready"
+            Bullet.positionY = screen_resolutionY - 5 * screen_resolutionY / 100 - Player.size
+            Bullet.state = "ready"
             enemyID.remove(i)
             score_value += 1
 
-        enemy(enemyX[i], enemyY[i], i)
+        Enemy.update(enemyX[i], enemyY[i], i)
 
     # Bullet Movement
-    if bulletY <= 0:
-        bulletY = screen_resolutionY - 5 * screen_resolutionY / 100 - player_size
-        bullet_state = "ready"
+    if Bullet.positionY <= 0:
+        Bullet.positionY = screen_resolutionY - 5 * screen_resolutionY / 100 - Player.size
+        Bullet.state = "ready"
 
-    if bullet_state is "fire":
-        fire_bullet(bulletX, bulletY)
-        bulletY -= bulletY_speed
+    if Bullet.state == "fire":
+        Bullet.fire(Bullet.positionX, Bullet.positionY)
+        Bullet.positionY -= Bullet.positionYSpeed
 
-    player(playerX, playerY)
+    Player.update(Player.positionX, Player.positionY)
     pygame.display.update()
