@@ -3,27 +3,28 @@ import math
 import random
 import pygame
 
-# Intialize the pygame
 pygame.init()
 
-# Create the screen
-screen_resolutionX = 800
-screen_resolutionY = 600
-screen = pygame.display.set_mode((screen_resolutionX, screen_resolutionY))
 
-# Background
-background = pygame.image.load('background.jpg')
+class Screen:
+    resolutionX = 800
+    resolutionY = 600
 
-# Caption
+
+
+screen = pygame.display.set_mode((Screen.resolutionX, Screen.resolutionY))
+FONT = pygame.font.Font('freesansbold.ttf', 32)
+BACKGROUND = pygame.image.load('background.jpg')
+over_font = pygame.font.Font('freesansbold.ttf', 64)
 pygame.display.set_caption("Strzelanka")
 
 
-# Player
+
 class Player:
     size = 64
     img = pygame.image.load('player.png')
-    positionX = screen_resolutionX / 2
-    positionY = screen_resolutionY - 5 * screen_resolutionY / 100 - size
+    positionX = Screen.resolutionX / 2
+    positionY = Screen.resolutionY - 5 * Screen.resolutionY / 100 - size
     positionXChange = 0
     positionXSpeed = 5
 
@@ -31,49 +32,47 @@ class Player:
         screen.blit(Player.img, (x, y))
 
 
-# Enemy
+class Level:
+    gamelvl = 0
+    numOfEnemies = [1, 5, 10, 16, 25, 40, 30000]
+    numOfEnemiesGenerated = 0
+    enemy_list = []
+
+
 class Enemy:
-    def __init__(self, lvl):
-        self.lvl = lvl
+    def __init__(self, typ_potwora):
+        if typ_potwora == 1:
+            self.potwor1()
+        elif typ_potwora == 2:
+            self.potwor2()
+        elif typ_potwora == 3:
+            self.potwor3()
+
+    def potwor1(self):
+        self.potwor = 1
         self.size = 64
-        self.speedX
-        self.speedY
+        self.img = pygame.image.load('enemy.png')
+        self.positionX = 50
+        self.positionY = 50
+        self.positionXChange = 1
+        self.positionYChange = 40
 
-    def update(x, y, i):
-        screen.blit(enemyImg[i], (x, y))
+    def potwor2(self):
+        self.potwor = 2
+        '''Stwórz atrybuty o wartościach dla potwora typu 2'''
 
+    def potwor3(self):
+        self.potwor = 3
+        '''Stwórz atrybuty o wartościach dla potwora typu 3'''
 
-enemyID = []
-gamelvl = 1
-enemysize = 64
-enemyImg = []
-enemyX = []
-enemyY = []
-enemyX_change = []
-enemyY_change = []
-num_of_enemies = [1, 5, 10, 16, 25, 40, 30000, 300000, 3000000, 30000000, 300000000, 3000000000, 30000000000]
-num_of_enemies_generated = 0
-
-enemyY_speed = 40
-enemyX_speed = 1
-enemyImg.append(pygame.image.load('enemy.png'))
-enemyX.append(1)
-enemyY.append(70)
-enemyX_change.append(enemyX_speed)
-enemyY_change.append(40)
-enemyID.append(0)
+    def update(self, posX, posY):
+        screen.blit(self.img, (self.positionX, self.positionY))
 
 
-# for i in range(num_of_enemies):
-
-
-# Bullet
-# Ready - You can't see the bullet on the screen
-# Fire - The bullet is currently moving
 class Bullet:
     img = pygame.image.load('bullet.png')
     positionX = 0
-    positionY = screen_resolutionY - 5 * screen_resolutionY / 100 - Player.size
+    positionY = Screen.resolutionY - 5 * Screen.resolutionY / 100 - Player.size
     positionYSpeed = 5
     positionYChange = 0
     state = "ready"
@@ -82,31 +81,34 @@ class Bullet:
         Bullet.state = "fire"
         screen.blit(Bullet.img, (x + 16, y + 10))
 
-# Score
-score_value = 0
-font = pygame.font.Font('freesansbold.ttf', 32)
 
-# time
-gamelvl_time_start = time.time()
-gamelvl_time = 15
+class Score:
+    # name = input("Podaj nick gracza")
+    value = 0
 
-enemy_latest_get_time = time.time()
-enemy_next_get_time = 1
-
-# Game Over
-over_font = pygame.font.Font('freesansbold.ttf', 64)
+    def update(self, x, y):
+        score = FONT.render("Score : " + str(self.value), True, (255, 255, 255))
+        screen.blit(score, (x, y))
 
 
-def show_score(x, y):
-    score = font.render("Score : " + str(score_value), True, (255, 255, 255))
-    screen.blit(score, (x, y))
+class Czas:
+    gamelvl_time_start = time.time()
+    gamelvl_time = 15
+
+    enemy_latest_get_time = time.time()
+    enemy_next_get_time = 1
+
+
+def menu():
+    nick = Score()
 
 
 def game_over_text():
     over_text = over_font.render("GAME OVER", True, (255, 255, 255))
-    screen.blit(over_text, (screen_resolutionX / 2, screen_resolutionY / 2))
+    screen.blit(over_text, (Screen.resolutionX / 2, Screen.resolutionY / 2))
 
-def isCollision(enemyX, enemyY, bulletX, bulletY):
+
+def is_collision(enemyX, enemyY, bulletX, bulletY):
     distance = math.sqrt(math.pow(enemyX - bulletX, 2) + (math.pow(enemyY - bulletY, 2)))
     if distance < 27:
         return True
@@ -114,18 +116,12 @@ def isCollision(enemyX, enemyY, bulletX, bulletY):
         return False
 
 
-# Game Loop
-running = True
-while running:
-
-    # RGB = Red, Green, Blue
-    screen.fill((0, 0, 0))
-    # Background Image
-    screen.blit(background, (0, 0))
+def buttons():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            global running
             running = False
-
+            break
         # if keystroke is pressed check whether its right or left
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
@@ -142,70 +138,90 @@ while running:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 Player.positionXChange = 0
 
-    # Next enemy creator
-    if num_of_enemies[gamelvl] >= num_of_enemies_generated:
-        if enemy_latest_get_time + enemy_next_get_time < time.time():
-            enemy_latest_get_time = time.time()
-            num_of_enemies_generated += 1
-            enemyID.append(num_of_enemies_generated)
-            enemyImg.append(pygame.image.load('enemy.png'))
-            enemyX.append(1)
-            enemyY.append(70)
-            enemyX_change.append(enemyX_speed)
-            enemyY_change.append(enemyY_speed)
 
-    # Next_level
-    if gamelvl_time_start + gamelvl_time < time.time() or not enemyID:
-        gamelvl_time_start = time.time()
-        gamelvl += 1
-        gamelvl_time = 10
-        enemyX_speed += 1
-        enemy_next_get_time -= 0.05
+def enemy_creator():
+    if Level.numOfEnemies[Level.gamelvl] > Level.numOfEnemiesGenerated:
+        if Czas.enemy_latest_get_time + Czas.enemy_next_get_time < time.time():
+            Czas.enemy_latest_get_time = time.time()
+            Level.enemy_list.append(Enemy(1))
+            Level.numOfEnemiesGenerated += 1
+
+
+def next_level():
+    if Czas.gamelvl_time_start + Czas.gamelvl_time < time.time() and not Level.enemy_list:
+        Czas.gamelvl_time_start = time.time()
+        Level.gamelvl += 1
+        Czas.gamelvl_time = 10
+        Czas.enemy_next_get_time -= 0.05
         print("Next lvl")
 
+
+def player_movement():
     Player.positionX += Player.positionXChange
     if Player.positionX <= 0:
         Player.positionX = 0
-    elif Player.positionX >= screen_resolutionX - Player.size:
-        Player.positionX = screen_resolutionX - Player.size
-    print(enemyID)
-    # Enemy Movement
-    for i in enemyID:
+    elif Player.positionX >= Screen.resolutionX - Player.size:
+        Player.positionX = Screen.resolutionX - Player.size
+    Player.update(Player.positionX, Player.positionY)
+
+
+def enemy_movement():
+    for enemyName in Level.enemy_list:
         # Game Over
-        if enemyY[i] > screen_resolutionY - 5 * screen_resolutionY / 100 - 2 * Player.size:
-            for j in enemyID:
-                enemyY[j] = 2000
+        if enemyName.positionY > Screen.resolutionY - 5 * Screen.resolutionY / 100 - 2 * Player.size:
+            for j in Level.enemy_list:
+                j.positionY = 2000
             game_over_text()
+            global running
+            running = False
             break
 
-        enemyX[i] += enemyX_change[i]
-        if enemyX[i] < 0:
-            enemyX[i] = 0
-            enemyX_change[i] = -enemyX_change[i]
-            enemyY[i] += enemyY_change[i]
-        elif enemyX[i] > screen_resolutionX - Player.size:
-            enemyX[i] = screen_resolutionX - Player.size
-            enemyX_change[i] = -enemyX_change[i]
-            enemyY[i] += enemyY_change[i]
+        enemyName.positionX += enemyName.positionXChange
+        if enemyName.positionX < 0:
+            enemyName.positionX = 0
+            enemyName.positionXChange = -enemyName.positionXChange
+            enemyName.positionY += enemyName.positionYChange
+        elif enemyName.positionX > Screen.resolutionX - Player.size:
+            enemyName.positionX = Screen.resolutionX - Player.size
+            enemyName.positionXChange = -enemyName.positionXChange
+            enemyName.positionY += enemyName.positionYChange
 
         # Collision
-        collision = isCollision(enemyX[i], enemyY[i], Bullet.positionX, Bullet.positionY)
+        collision = is_collision(enemyName.positionX, enemyName.positionY, Bullet.positionX, Bullet.positionY)
         if collision:
-            Bullet.positionY = screen_resolutionY - 5 * screen_resolutionY / 100 - Player.size
+            Bullet.positionY = Screen.resolutionY - 5 * Screen.resolutionY / 100 - Player.size
             Bullet.state = "ready"
-            enemyID.remove(i)
-            score_value += 1
+            Level.enemy_list.remove(enemyName)
+            Score.value += 1
 
-        Enemy.update(enemyX[i], enemyY[i], i)
+        Enemy.update(enemyName, enemyName.positionX, enemyName.positionY)
 
-    # Bullet Movement
+    print(Level.enemy_list)
+
+
+def bullet_movement():
     if Bullet.positionY <= 0:
-        Bullet.positionY = screen_resolutionY - 5 * screen_resolutionY / 100 - Player.size
+        Bullet.positionY = Screen.resolutionY - 5 * Screen.resolutionY / 100 - Player.size
         Bullet.state = "ready"
 
     if Bullet.state == "fire":
         Bullet.fire(Bullet.positionX, Bullet.positionY)
         Bullet.positionY -= Bullet.positionYSpeed
 
-    Player.update(Player.positionX, Player.positionY)
+
+def game():
+    screen.fill((0, 0, 0))
+    screen.blit(BACKGROUND, (0, 0))
+    buttons()
+    enemy_creator()
+    next_level()
+    player_movement()
+    enemy_movement()
+    bullet_movement()
     pygame.display.update()
+
+
+# menu()
+running = True
+while running:
+    game()
