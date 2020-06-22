@@ -11,30 +11,28 @@ class Screen:
     resolutionY = 600
 
 
-
-screen = pygame.display.set_mode((Screen.resolutionX, Screen.resolutionY))
+SCREEN = pygame.display.set_mode((Screen.resolutionX, Screen.resolutionY))
 FONT = pygame.font.Font('freesansbold.ttf', 32)
-BACKGROUND = pygame.image.load('background.jpg')
-over_font = pygame.font.Font('freesansbold.ttf', 64)
+BACKGROUND = pygame.image.load('img/background.jpg')
+END_FONT = pygame.font.Font('freesansbold.ttf', 64)
 pygame.display.set_caption("Strzelanka")
-
 
 
 class Player:
     size = 64
-    img = pygame.image.load('player.png')
+    img = pygame.image.load('img/player.png')
     positionX = Screen.resolutionX / 2
     positionY = Screen.resolutionY - 5 * Screen.resolutionY / 100 - size
     positionXChange = 0
     positionXSpeed = 5
 
     def update(x, y):
-        screen.blit(Player.img, (x, y))
+        SCREEN.blit(Player.img, ((int)(x), (int)(y)))
 
 
 class Level:
     gamelvl = 0
-    numOfEnemies = [1, 5, 10, 16, 25, 40, 30000]
+    numOfEnemies = [20, 30, 10]
     numOfEnemiesGenerated = 0
     enemy_list = []
 
@@ -49,28 +47,35 @@ class Enemy:
             self.potwor3()
 
     def potwor1(self):
-        self.potwor = 1
         self.size = 64
-        self.img = pygame.image.load('enemy.png')
+        self.img = pygame.image.load('img/enemy.png')
         self.positionX = 50
         self.positionY = 50
         self.positionXChange = 1
         self.positionYChange = 40
 
     def potwor2(self):
-        self.potwor = 2
-        '''Stwórz atrybuty o wartościach dla potwora typu 2'''
+        self.size = 64
+        self.img = pygame.image.load('img/enemy.png')
+        self.positionX = 50
+        self.positionY = 50
+        self.positionXChange = 4
+        self.positionYChange = 40
 
     def potwor3(self):
-        self.potwor = 3
-        '''Stwórz atrybuty o wartościach dla potwora typu 3'''
+        self.size = 64
+        self.img = pygame.image.load('img/enemy.png')
+        self.positionX = 50
+        self.positionY = 50
+        self.positionXChange = 8
+        self.positionYChange = 40
 
     def update(self, posX, posY):
-        screen.blit(self.img, (self.positionX, self.positionY))
+        SCREEN.blit(self.img, ((int)(self.positionX), (int)(self.positionY)))
 
 
 class Bullet:
-    img = pygame.image.load('bullet.png')
+    img = pygame.image.load('img/bullet.png')
     positionX = 0
     positionY = Screen.resolutionY - 5 * Screen.resolutionY / 100 - Player.size
     positionYSpeed = 5
@@ -79,7 +84,7 @@ class Bullet:
 
     def fire(x, y):
         Bullet.state = "fire"
-        screen.blit(Bullet.img, (x + 16, y + 10))
+        SCREEN.blit(Bullet.img, (x + 16, y + 10))
 
 
 class Score:
@@ -88,7 +93,7 @@ class Score:
 
     def update(self, x, y):
         score = FONT.render("Score : " + str(self.value), True, (255, 255, 255))
-        screen.blit(score, (x, y))
+        SCREEN.blit(score, (x, y))
 
 
 class Czas:
@@ -104,8 +109,8 @@ def menu():
 
 
 def game_over_text():
-    over_text = over_font.render("GAME OVER", True, (255, 255, 255))
-    screen.blit(over_text, (Screen.resolutionX / 2, Screen.resolutionY / 2))
+    over_text = END_FONT.render("GAME OVER", True, (255, 255, 255))
+    SCREEN.blit(over_text, ((int)(Screen.resolutionX / 2), (int)(Screen.resolutionY / 2)))
 
 
 def is_collision(enemyX, enemyY, bulletX, bulletY):
@@ -143,7 +148,12 @@ def enemy_creator():
     if Level.numOfEnemies[Level.gamelvl] > Level.numOfEnemiesGenerated:
         if Czas.enemy_latest_get_time + Czas.enemy_next_get_time < time.time():
             Czas.enemy_latest_get_time = time.time()
-            Level.enemy_list.append(Enemy(1))
+            if Level.gamelvl == 0:
+                Level.enemy_list.append(Enemy(1))
+            if Level.gamelvl == 1:
+                Level.enemy_list.append(Enemy(2))
+            if Level.gamelvl == 2:
+                Level.enemy_list.append(Enemy(3))
             Level.numOfEnemiesGenerated += 1
 
 
@@ -193,7 +203,6 @@ def enemy_movement():
             Bullet.state = "ready"
             Level.enemy_list.remove(enemyName)
             Score.value += 1
-
         Enemy.update(enemyName, enemyName.positionX, enemyName.positionY)
 
     print(Level.enemy_list)
@@ -210,8 +219,8 @@ def bullet_movement():
 
 
 def game():
-    screen.fill((0, 0, 0))
-    screen.blit(BACKGROUND, (0, 0))
+    SCREEN.fill((0, 0, 0))
+    SCREEN.blit(BACKGROUND, (0, 0))
     buttons()
     enemy_creator()
     next_level()
