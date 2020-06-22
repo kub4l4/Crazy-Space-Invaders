@@ -23,7 +23,7 @@ playerImg = pygame.image.load('player.png')
 playerX = screen_resolutionX / 2
 playerY = screen_resolutionY - 5 * screen_resolutionY / 100 - player_size
 playerX_change = 0
-playerX_speed =5
+playerX_speed = 5
 
 # Enemy
 enemyID = []
@@ -63,7 +63,7 @@ bullet_state = "ready"
 score_value = 0
 font = pygame.font.Font('freesansbold.ttf', 32)
 
-#time
+# time
 gamelvl_time_start = time.time()
 gamelvl_time = 15
 
@@ -72,6 +72,7 @@ enemy_next_get_time = 1
 
 # Game Over
 over_font = pygame.font.Font('freesansbold.ttf', 64)
+
 
 def show_score(x, y):
     score = font.render("Score : " + str(score_value), True, (255, 255, 255))
@@ -104,6 +105,7 @@ def isCollision(enemyX, enemyY, bulletX, bulletY):
     else:
         return False
 
+
 # Game Loop
 running = True
 while running:
@@ -132,7 +134,7 @@ while running:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 playerX_change = 0
 
-    #Next enemy creator
+    # Next enemy creator
     if num_of_enemies[gamelvl] >= num_of_enemies_generated:
         if enemy_latest_get_time + enemy_next_get_time < time.time():
             enemy_latest_get_time = time.time()
@@ -144,7 +146,7 @@ while running:
             enemyX_change.append(enemyX_speed)
             enemyY_change.append(enemyY_speed)
 
-    #Next_level
+    # Next_level
     if gamelvl_time_start + gamelvl_time < time.time() or not enemyID:
         gamelvl_time_start = time.time()
         gamelvl += 1
@@ -152,7 +154,6 @@ while running:
         enemyX_speed += 1
         enemy_next_get_time -= 0.05
         print("Next lvl")
-
 
     playerX += playerX_change
     if playerX <= 0:
