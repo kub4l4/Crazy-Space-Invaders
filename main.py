@@ -127,12 +127,13 @@ def buttons():
             global running
             running = False
             break
+
         # if keystroke is pressed check whether its right or left
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
-                Player.positionXChange -= Player.positionXSpeed
+                key[0] = True
             if event.key == pygame.K_RIGHT:
-                Player.positionXChange += Player.positionXSpeed
+                key[1] = True
             if event.key == pygame.K_SPACE:
                 if Bullet.state == "ready":
                     # Get the current x cordinate of the spaceship
@@ -140,8 +141,17 @@ def buttons():
                     Bullet.fire(Bullet.positionX, Bullet.positionY)
 
         if event.type == pygame.KEYUP:
-            if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-                Player.positionXChange = 0
+            if event.key == pygame.K_LEFT:
+                key[0] = False
+            if event.key == pygame.K_RIGHT:
+                key[1] = False
+
+        if key[0] and key[1] or not key[0] and not key[1]:
+            Player.positionXChange = 0
+        elif key[1]:
+            Player.positionXChange += Player.positionXSpeed
+        elif key[0]:
+            Player.positionXChange -= Player.positionXSpeed
 
 
 def enemy_creator():
@@ -231,6 +241,7 @@ def game():
 
 
 # menu()
+key = [False, False]
 running = True
 while running:
     game()
