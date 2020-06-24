@@ -1,32 +1,16 @@
-"""Main game module
+""" Moduł gry
 
-This is a main mmodule of source code of game Millitary War.
-
-Example:
-    Examples can be given using either the ``Example`` or ``Examples``
-    sections. Sections support any reStructuredText formatting, including
-    literal blocks::
-
-        $ python example_google.py
-
-Section breaks are created by resuming unindented text. Section breaks
-are also implicitly created anytime a new section starts.
-
-Todo:
-    * For module TODOs
-    * You have to also use ``sphinx.ext.todo`` extension
-
-
+Ten moduł zawiera całą gre
 """
-import time
+import sys
 
 import math
+
+import time
 
 import random
 
 import pygame
-
-import sys
 
 pygame.init()
 
@@ -35,11 +19,11 @@ class Screen:
     """
     class with window resolution in px
     """
-    resolutionX = 1080
-    resolutionY = 720
+    resolution_x = 1080
+    resolution_y = 720
 
 
-SCREEN = pygame.display.set_mode((Screen.resolutionX, Screen.resolutionY))
+SCREEN = pygame.display.set_mode((Screen.resolution_x, Screen.resolution_y))
 MENU = pygame.image.load('img/menu.png')
 BACKGROUND = pygame.image.load('img/background.jpg')
 pygame.display.set_caption("Military War")
@@ -57,6 +41,7 @@ POS_SCORE_TXT = (300, 480)
 POS_NEXT_LVL_TXT = (100, 300)
 POS_BULLET_TXT = (50, 650)
 
+POS_Y_ENEMY_WIN = 650
 # FONTS
 FONT = pygame.font.Font('font/ARMY_RUST.ttf', 50)
 MENU_FONT = pygame.font.Font('font/ARMY_RUST.ttf', 128)
@@ -77,12 +62,10 @@ INCREASE_AVAILABLE_BULLET = 1
 TIME_ON_START_TO_CREATE_NEW_ENEMY = 5
 TIME_DECREASE_TO_CREATE_ENEMY = -0.1
 
-class Init:
-    """
-    class useful variables
-    """
-    stan = 1
-    running = 1
+ENEMY_START_SPEED = 5
+ENEMY_START_POS = 10
+
+NUMBER_OF_LEVELS = 10
 
 
 class Player:
@@ -96,21 +79,28 @@ class Player:
         """
         self.size = 64
         self.img = pygame.image.load('img/player.png')
-        self.pos_x = Screen.resolutionX / 2
-        self.pos_y = Screen.resolutionY - 5 * Screen.resolutionY / 100 - self.size
+        self.pos_x = Screen.resolution_x / 2
+        self.pos_y = Screen.resolution_y - 5 * Screen.resolution_y / 100 - self.size
         self.pos_x_change = 0
-        self.pos_x_speed = 5
+        self.pos_x_speed = 1
         self.score = 0
 
     def movement(self):
         """
         function replacing position of player
         """
+        if key[0] and key[1] or not key[0] and not key[1]:
+            self.pos_x_change = 0
+        elif key[1]:
+            self.pos_x_change += self.pos_x_speed
+        elif key[0]:
+            self.pos_x_change -= self.pos_x_speed
+
         self.pos_x += self.pos_x_change
         if self.pos_x <= POS_X_MIN:
             self.pos_x = POS_X_MIN
-        elif self.pos_x >= Screen.resolutionX - self.size:
-            self.pos_x = Screen.resolutionX - self.size
+        elif self.pos_x >= Screen.resolution_x - self.size:
+            self.pos_x = Screen.resolution_x - self.size
         self.update()
 
     def update(self):
@@ -141,7 +131,7 @@ class Bullet:
         """
         self.img = pygame.image.load('img/bullet.png')
         self.pos_x = poz_x
-        self.pos_y = Screen.resolutionY - 5 * Screen.resolutionY / 100 - Player1.size
+        self.pos_y = Screen.resolution_y - 5 * Screen.resolution_y / 100 - Init.player1.size
         self.pos_y_speed = 5
         self.pos_y_change = 0
 
@@ -228,11 +218,20 @@ class Enemy:
         self.pos_y += self.pos_y_speed
 
 
+class Init:
+    """
+    class useful variables
+    """
+    state = 1
+    running = 1
+    player1 = Player()
+
+
 def menu():
     """
     show menu
     """
-    SCREEN.blit(MENU, (0, 0))
+    SCREEN.blit(MENU, (POS_X_MIN, POS_Y_MIN))
     SCREEN.blit(TITLE1, POS_TITLE1)
     SCREEN.blit(TITLE2, POS_TITLE2)
     SCREEN.blit(START_TEXT, POS_START_TXT)
@@ -248,7 +247,7 @@ def game_over_text():
     dead_txt = FONT.render("GAME OVER", True, TXT_COLOR)
     SCREEN.blit(dead_txt, POS_DEAD_TXT)
 
-    dead_txt = FONT.render("SCORE: " + str(Player1.score), True, TXT_COLOR)
+    dead_txt = FONT.render("SCORE: " + str(Init.player1.score), True, TXT_COLOR)
     SCREEN.blit(dead_txt, POS_SCORE_TXT)
     SCREEN.blit(EXIT_TEXT, POS_START_TXT)
 
@@ -260,7 +259,7 @@ def game_win_text():
     dead_txt = FONT.render("WINNER", True, TXT_COLOR)
     SCREEN.blit(dead_txt, POS_DEAD_TXT)
 
-    dead_txt = FONT.render("SCORE: " + str(Player1.score), True, TXT_COLOR)
+    dead_txt = FONT.render("SCORE: " + str(Init.player1.score), True, TXT_COLOR)
     SCREEN.blit(dead_txt, POS_SCORE_TXT)
     SCREEN.blit(EXIT_TEXT, POS_START_TXT)
 
@@ -287,18 +286,12 @@ def buttons():
                 key[1] = True
             if event.key == pygame.K_SPACE:
                 if len(Bullet.list) < Bullet.max:
-                    Bullet.list.append(Bullet(Player1.pos_x))
+                    Bullet.list.append(Bullet(Init.player1.pos_x))
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
                 key[0] = False
             if event.key == pygame.K_RIGHT:
                 key[1] = False
-        if key[0] and key[1] or not key[0] and not key[1]:
-            Player1.pos_x_change = 0
-        elif key[1]:
-            Player1.pos_x_change += Player1.pos_x_speed
-        elif key[0]:
-            Player1.pos_x_change -= Player1.pos_x_speed
 
 
 def exit_button():
@@ -322,7 +315,7 @@ def start_button():
             sys.exit(0)
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
-                Init.stan = 2
+                Init.state = 2
 
 
 def enemy_creator():
@@ -350,15 +343,15 @@ def enemy_movement():
     function replacing position of all existing enemy
     """
     for n_enemy in Enemy.list:
-        if n_enemy.pos_y < 10:
-            n_enemy.pos_y = n_enemy.pos_y + 5
+        if n_enemy.pos_y < ENEMY_START_POS:
+            n_enemy.pos_y = n_enemy.pos_y + ENEMY_START_SPEED
         else:
             n_enemy.pos_x += n_enemy.pos_x_speed
             if n_enemy.pos_x < POS_X_MIN:
                 n_enemy.pos_x = POS_X_MIN
                 n_enemy.down_change_direction()
-            elif n_enemy.pos_x > Screen.resolutionX - Player1.size:
-                n_enemy.pos_x = Screen.resolutionX - Player1.size
+            elif n_enemy.pos_x > Screen.resolution_x - Init.player1.size:
+                n_enemy.pos_x = Screen.resolution_x - Init.player1.size
                 n_enemy.down_change_direction()
         n_enemy.update()
 
@@ -374,26 +367,27 @@ def bullet_movement():
             n_bullet.fire()
 
 
-def is_collision(enemy_x, enemy_y, bullet_x, bullet_y):
+def is_collision(enemy_x, enemy_y, bullet_x, bullet_y, size):
     """
     function return true if bullet hit a enemy, false if not hit
     """
     distance = math.sqrt(math.pow(enemy_x - bullet_x, 2) + (math.pow(enemy_y - bullet_y, 2)))
-    if distance < 27:
+    if distance < size / 2:
         return True
     return False
 
 
 def collision():
     """
-    if function is_collision is true, function remove objects enemy and bullet. Also increment score.
+    if function is_collision is true, function remove objects enemy and bullet.
+    Also increment score.
     """
     for n_enemy in Enemy.list:
         for n_bullet in Bullet.list:
-            if is_collision(n_enemy.pos_x, n_enemy.pos_y, n_bullet.pos_x, n_bullet.pos_y):
+            if is_collision(n_enemy.pos_x, n_enemy.pos_y, n_bullet.pos_x, n_bullet.pos_y, n_enemy.size):
                 Enemy.list.remove(n_enemy)
                 Bullet.list.remove(n_bullet)
-                Player1.score += 1
+                Init.player1.score += 1
 
 
 def next_level():
@@ -402,8 +396,6 @@ def next_level():
     every new level:
         the next level is random created
         available bullets increase
-
-
     """
     if not Enemy.list:
         Level.now += 1
@@ -419,23 +411,30 @@ def next_level():
 
 
 def ending_condition():
+    """
+    ending condition.
+    When enemy is over POS_Y_ENEMY_WIN player loses.
+    When player pass NUMBER_OF_LEVELS he wins.
+    """
     for n_enemy in Enemy.list:
-        if n_enemy.pos_y > Screen.resolutionY - 5 * Screen.resolutionY / 100 - 2 * Player1.size:
-            Init.stan = 3
+        if n_enemy.pos_y > POS_Y_ENEMY_WIN:
+            Init.state = 3
             break
-    if Level.now == 10:
-        Init.stan = 4
+    if Level.now == NUMBER_OF_LEVELS:
+        Init.state = 4
 
 
 def game():
-    SCREEN.fill((0, 0, 0))
+    """
+    game function is function that calls all function while playing
+    """
     SCREEN.blit(BACKGROUND, (POS_X_MIN, POS_Y_MIN))
     buttons()
     collision()
-    Player1.update_score()
+    Init.player1.update_score()
     update_bullets()
     enemy_creator()
-    Player1.movement()
+    Init.player1.movement()
     enemy_movement()
     bullet_movement()
     pygame.display.update()
@@ -443,26 +442,37 @@ def game():
     ending_condition()
 
 
-while Init.running == 1:
-    if Init.stan == 1:
-        Player1 = Player()
-        menu()
+def main():
+    """
+    main function, that starts the game
+    stan=1 - menu
+    stan=1 - game
+    stan=3 - game over
+    stan=4 - winner
+    """
+    while Init.running == 1:
+        if Init.state == 1:
+            menu()
 
-    if Init.stan == 2:
-        game()
+        if Init.state == 2:
+            game()
 
-    if Init.stan == 3:
-        SCREEN.blit(MENU, (0, 0))
-        SCREEN.blit(TITLE1, POS_TITLE1)
-        SCREEN.blit(TITLE2, POS_TITLE2)
-        game_over_text()
-        exit_button()
-        pygame.display.update()
+        if Init.state == 3:
+            SCREEN.blit(MENU, (POS_X_MIN, POS_Y_MIN))
+            SCREEN.blit(TITLE1, POS_TITLE1)
+            SCREEN.blit(TITLE2, POS_TITLE2)
+            game_over_text()
+            exit_button()
+            pygame.display.update()
 
-    if Init.stan == 4:
-        SCREEN.blit(MENU, (0, 0))
-        SCREEN.blit(TITLE1, POS_TITLE1)
-        SCREEN.blit(TITLE2, POS_TITLE2)
-        game_win_text()
-        exit_button()
-        pygame.display.update()
+        if Init.state == 4:
+            SCREEN.blit(MENU, (POS_X_MIN, POS_Y_MIN))
+            SCREEN.blit(TITLE1, POS_TITLE1)
+            SCREEN.blit(TITLE2, POS_TITLE2)
+            game_win_text()
+            exit_button()
+            pygame.display.update()
+
+
+if __name__ == "__main__":
+    main()
