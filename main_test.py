@@ -8,9 +8,12 @@ import main
 
 
 class BulletTest(unittest.TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         pygame.init()
         main.Assets.load()
+
+    def setUp(self):
         player1 = main.Player()
         self.n_bullet = main.Bullet(player1)
 
