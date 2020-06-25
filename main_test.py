@@ -9,6 +9,7 @@ import main
 
 class EnemyTest(unittest.TestCase):
     """Klasa dokonująca klasy Enemy."""
+
     def setUp(self):
         pygame.init()
         main.Assets.load()
@@ -25,6 +26,7 @@ class EnemyTest(unittest.TestCase):
 
 class BulletTest(unittest.TestCase):
     """Klasa dokonująca klasy Bullet."""
+
     def setUp(self):
         pygame.init()
         main.Assets.load()
@@ -38,6 +40,7 @@ class BulletTest(unittest.TestCase):
 
 class TestCollision(unittest.TestCase):
     """Klasa dokonująca testów funkcji is_collision."""
+
     def setUp(self):
         self.enemy_x = 150
         self.enemy_y = 300
@@ -45,33 +48,34 @@ class TestCollision(unittest.TestCase):
         self.bullet_y = 300
         self.size = 64
 
-    def test1(self):
+    def test_is_collision(self):
         self.assertEqual(main.is_collision(
             self.enemy_x, self.enemy_y, self.bullet_x, self.bullet_y, self.size), True)
 
 
-class TestEnemy_creator(unittest.TestCase):
+class TestEnemyCreator(unittest.TestCase):
     """Klasa dokonująca testów funkcji enemy_creator."""
+
     def setUp(self):
         pygame.init()
         main.Assets.load()
         main.enemy_creator()
 
-    def test1(self):
+    def test_enemy_creator(self):
         self.assertEqual(main.Enemy.num_of_enemies_generated, 1)
 
 
 class TestEnemyMovement(unittest.TestCase):
     """Klasa dokonująca testów funkcji enemy_movement."""
+
     def setUp(self):
         pygame.init()
         main.Assets.load()
-        screen = pygame.display.set_mode(main.RESOLUTION)
         player = main.Player()
         main.n_enemy = main.Enemy(1)
-        main.enemy_movement(screen, player)
+        main.enemy_movement(pygame.display.set_mode(main.RESOLUTION), player)
 
-    def test1(self):
+    def test_enemy_movement(self):
         self.assertEqual(main.n_enemy.pos_y, -64)
 
 
