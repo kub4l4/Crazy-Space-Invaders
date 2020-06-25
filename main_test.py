@@ -36,33 +36,21 @@ class EnemyTest(unittest.TestCase):
 
 
 class TestCollision(unittest.TestCase):
-    def setUp(self):
-        self.enemy_x = 150
-        self.enemy_y = 300
-        self.bullet_x = 140
-        self.bullet_y = 300
-        self.size = 64
-
     def test_is_collision(self):
-        self.assertTrue(main.is_collision(
-            self.enemy_x, self.enemy_y, self.bullet_x, self.bullet_y, self.size))
+        self.assertTrue(main.is_collision(100, 400, 125, 400, 64))
 
 
 class TestEnemyCreator(unittest.TestCase):
-    def setUp(self):
-        main.enemy_creator()
-
     def test_enemy_creator(self):
+        main.enemy_creator()
         self.assertEqual(main.Enemy.num_of_enemies_generated, 1)
 
 
 class TestEnemyMovement(unittest.TestCase):
-    def setUp(self):
+    def test_enemy_movement(self):
         player = main.Player()
         main.n_enemy = main.Enemy(1)
         main.enemy_movement(pygame.display.set_mode(main.RESOLUTION), player)
-
-    def test_enemy_movement(self):
         self.assertEqual(main.n_enemy.pos_y, -64)
 
 
