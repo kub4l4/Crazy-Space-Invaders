@@ -1,12 +1,13 @@
-#Crazy SpaceInvaders
-School project to study python
-##1. Project topic
+# Crazy SpaceInvaders#
+
+School project - study python
+## 1. Project topic
 The theme of the project is a Space Invaders game in a different style. As in the original version, the player moves left and right, shooting at his opponents. Contrary to the standard version, enemies fly from above to the screen in a random position. After moving down to a certain height, they start moving right until they hit the end of the screen. This is the moment when the enemy flies down and starts moving to the left.
 Hitting an enemy with a missile scores a point. After hitting all monsters, the player moves to the next level. With each level, the possible difficulty of the game increases and the number of missile available to the player increases. Up to level 3, the number of monsters remains constant. From 3 levels on, the number of monsters is generated in a way that increases the possible difficulty of the game.
 The game ends when the player passes a certain number of levels or when the opponent reaches a certain point on the screen.
 ![Image of Yaktocat](https://raw.githubusercontent.com/kub4l4/Crazy-Space-Invaders/master/screen.png)
 
-##2. Code
+## 2. Code
 The program code was written in one python module, using libraries:
 ```python
 import math
@@ -70,7 +71,7 @@ class Enemy:
         self.pos_x_speed = -self.pos_x_speed
         self.pos_y += self.pos_y_speed
 ```
-##3. Test
+## 3. Test
 The selected classes have been tested in the `main_test.py` file:<br/>
 
 Example:
@@ -107,5 +108,5 @@ class TestCollision(unittest.TestCase):
     def test_is_collision(self):
         self.assertTrue(main.is_collision(100, 400, 125, 400, 64))
 ```
-##3. Summary
+## 3. Summary
 The implementation of the project made me realize that learning many methods and libraries allows me to implement better and more efficient programs. Additionally, systematized my knowledge gained during laboratory classes.
