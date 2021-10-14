@@ -1,6 +1,6 @@
-# Crazy SpaceInvaders#
+# Crazy SpaceInvaders
 
-School project - study python
+School project - python
 ## 1. Project topic
 The theme of the project is a Space Invaders game in a different style. As in the original version, the player moves left and right, shooting at his opponents. Contrary to the standard version, enemies fly from above to the screen in a random position. After moving down to a certain height, they start moving right until they hit the end of the screen. This is the moment when the enemy flies down and starts moving to the left.
 Hitting an enemy with a missile scores a point. After hitting all monsters, the player moves to the next level. With each level, the possible difficulty of the game increases and the number of missile available to the player increases. Up to level 3, the number of monsters remains constant. From 3 levels on, the number of monsters is generated in a way that increases the possible difficulty of the game.
